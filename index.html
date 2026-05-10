@@ -363,7 +363,7 @@
 // ═══════════════════════════════════════════════════════
 //  CONFIGURATION — À RENSEIGNER
 // ═══════════════════════════════════════════════════════
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbz6BX86hIwvS7fyEd_9v6aBcqcWbqGoiz5_WDy2Djt6JvVy5gAYmzedsYy2zMxGglQk/exec';
+const GAS_URL = 'VOTRE_URL_GOOGLE_APPS_SCRIPT_ICI';
 // Collez ici l'URL de déploiement de votre Apps Script
 // Format : https://script.google.com/macros/s/XXXXX/exec
 
@@ -605,12 +605,16 @@ async function submitBooking() {
   }
 
   try {
+    // POST en form-urlencoded → simple request CORS (pas de preflight)
+    // Apps Script lit le payload via e.parameter.payload
+    const formData = new URLSearchParams();
+    formData.append('payload', JSON.stringify(payload));
+
     const res = await fetch(GAS_URL, {
-     method: 'POST',
-     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-     body: JSON.stringify(payload),
-     redirect: 'follow'
-   });
+      method: 'POST',
+      body: formData,
+      redirect: 'follow'
+    });
     const data = await res.json();
     if (data.success) {
       showSuccess(payload);
