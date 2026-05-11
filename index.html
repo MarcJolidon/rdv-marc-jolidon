@@ -604,23 +604,22 @@ async function submitBooking() {
     return;
   }
 
-  try {
-    // POST en form-urlencoded → simple request CORS (pas de preflight)
-    // Apps Script lit le payload via e.parameter.payload
+ try {
+    // Envoi en no-cors : on ne peut pas lire la réponse, mais le serveur reçoit bien la requête.
+    // Apps Script ne renvoie pas de header CORS, donc c'est notre seule option.
     const formData = new URLSearchParams();
     formData.append('payload', JSON.stringify(payload));
 
-    const res = await fetch(GAS_URL, {
+    await fetch(GAS_URL, {
       method: 'POST',
+      mode: 'no-cors',
       body: formData,
       redirect: 'follow'
     });
-    const data = await res.json();
-    if (data.success) {
-      showSuccess(payload);
-    } else {
-      throw new Error(data.message || 'Erreur serveur');
-    }
+    
+    // Pas de moyen de vérifier la réponse en no-cors, on assume le succès
+    // Le visiteur recevra de toute façon un mail de confirmation
+    showSuccess(payload);
   } catch(e) {
     btn.disabled = false;
     btn.innerHTML = '✔ Confirmer ce rendez-vous';
